@@ -17,4 +17,5 @@ tmp/
 *.dll
 *.dmg
 .cmake*
+.claude
 bin

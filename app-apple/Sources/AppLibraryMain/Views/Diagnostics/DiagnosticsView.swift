@@ -45,6 +45,7 @@ struct DiagnosticsView: View {
             if iapObservable.isBeta {
                 BetaSection()
             }
+            statusMonitorSection
             liveLogSection
             profilesSection
             if appConfiguration.bundle.distributionTarget.supportsAppGroups {
@@ -69,6 +70,12 @@ struct DiagnosticsView: View {
 }
 
 private extension DiagnosticsView {
+    var statusMonitorSection: some View {
+        Section {
+            NavigationLink("Status Monitor", value: DiagnosticsRoute.statusMonitor)
+        }
+    }
+
     var liveLogSection: some View {
         Group {
             navLink(

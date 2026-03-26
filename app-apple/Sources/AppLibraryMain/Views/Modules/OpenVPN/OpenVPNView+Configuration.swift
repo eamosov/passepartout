@@ -36,6 +36,7 @@ extension OpenVPNView {
                 tlsSection
             }
             keepAliveSection
+            singBoxSection
             otherSection
         }
     }
@@ -313,6 +314,51 @@ private extension OpenVPNView.ConfigurationView {
         }
     }
 
+    var singBoxSection: some View {
+        themeModuleSection(if: singBoxRows, header: "VLESS / Reality") {
+            ThemeRow("SingBox", value: configuration.singBoxEnabled == true ? Strings.Global.Nouns.enabled : Strings.Global.Nouns.disabled)
+
+            configuration.singBoxUUID
+                .map {
+                    ThemeCopiableText("UUID", value: $0)
+                }
+
+            configuration.singBoxServerPort
+                .map {
+                    ThemeRow(Strings.Global.Nouns.port, value: String($0))
+                }
+
+            configuration.singBoxTLSServerName
+                .map {
+                    ThemeCopiableText("TLS Server Name", value: $0)
+                }
+
+            configuration.singBoxTLSPublicKey
+                .map {
+                    ThemeLongContentLink(
+                        "TLS Public Key",
+                        text: .constant($0),
+                        preview: String($0.prefix(16)) + "..."
+                    )
+                }
+
+            configuration.singBoxTLSShortId
+                .map {
+                    ThemeCopiableText("TLS Short ID", value: $0)
+                }
+
+            configuration.singBoxOverrideAddress
+                .map {
+                    ThemeCopiableText("Override Address", value: $0)
+                }
+
+            configuration.singBoxOverridePort
+                .map {
+                    ThemeRow("Override Port", value: String($0))
+                }
+        }
+    }
+
     var otherSection: some View {
         themeModuleSection(if: otherRows, header: Strings.Global.Nouns.other) {
             configuration.localizedDescription(optionalStyle: .renegotiatesAfter)
@@ -413,6 +459,19 @@ private extension OpenVPNView.ConfigurationView {
         [
             configuration.keepAliveTimeout,
             configuration.keepAliveInterval
+        ]
+    }
+
+    var singBoxRows: [Any?] {
+        [
+            configuration.singBoxEnabled,
+            configuration.singBoxUUID,
+            configuration.singBoxServerPort,
+            configuration.singBoxTLSServerName,
+            configuration.singBoxTLSPublicKey,
+            configuration.singBoxTLSShortId,
+            configuration.singBoxOverrideAddress,
+            configuration.singBoxOverridePort
         ]
     }
 

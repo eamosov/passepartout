@@ -143,6 +143,10 @@ extension SettingsCoordinator {
         case .profile(let header):
             DiagnosticsProfileView(tunnel: tunnel, header: header)
 
+        case .statusMonitor:
+            StatusMonitorView()
+                .navigationTitle("Status Monitor")
+
         case .tunnelLog(let title, let url):
             if let url {
                 DebugLogView(withURL: url) {

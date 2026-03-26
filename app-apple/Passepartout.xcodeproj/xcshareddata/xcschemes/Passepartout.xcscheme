@@ -5,6 +5,25 @@
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Build sing-box"
+               scriptText = "export SRCROOT=&quot;${PROJECT_DIR}/..&quot;&#10;export SING_BOX_OUTPUT_DIR=&quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build-sing-box.sh&quot;&#10;"
+               shellToInvoke = "/bin/bash">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "0E06D18E2B87629100176E1D"
+                     BuildableName = "Passepartout.app"
+                     BlueprintName = "Passepartout"
+                     ReferencedContainer = "container:Passepartout.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"

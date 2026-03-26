@@ -9,5 +9,7 @@ enum DiagnosticsRoute: Hashable {
 
     case profile(ABI.AppProfileHeader)
 
+    case statusMonitor
+
     case tunnelLog(title: String, url: URL?)
 }

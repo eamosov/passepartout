@@ -27,7 +27,8 @@ struct OpenVPNImplementationBuilder: Sendable {
             importerBlock: { StandardOpenVPNParser() },
             connectionBlock: {
                 try crossConnection(with: $0, module: $1)
-            }
+            },
+            singBoxRunnerBlock: { newSingBoxRunner() }
         )
     }
 }
@@ -41,13 +42,37 @@ private extension OpenVPNImplementationBuilder {
         var options = OpenVPNConnection.Options()
         options.writeTimeout = TimeInterval(parameters.options.linkWriteTimeout) / 1000.0
         options.minDataCountInterval = TimeInterval(parameters.options.minDataCountInterval) / 1000.0
+
+        // Create sing-box runner if configuration has sb_enable
+        let singBoxRunner: SingBoxRunner?
+        if module.configuration?.singBoxEnabled == true {
+            singBoxRunner = newSingBoxRunner()
+        } else {
+            singBoxRunner = nil
+        }
+
         return try OpenVPNConnection(
             ctx,
             parameters: parameters,
             module: module,
             cachesURL: cachesURL,
+            singBoxRunner: singBoxRunner,
             options: options
         )
     }
+}
+
+private func newSingBoxRunner() -> SingBoxRunner {
+#if canImport(_PartoutSingBox_C)
+    return LibSingBoxRunner()
+#elseif os(macOS)
+    // Fallback: try to find sing-box binary in PATH or bundle
+    if let bundlePath = Bundle.main.path(forResource: "sing-box", ofType: nil) {
+        return ProcessSingBoxRunner(binaryPath: bundlePath)
+    }
+    return ProcessSingBoxRunner(binaryPath: "/usr/local/bin/sing-box")
+#else
+    fatalError("No SingBoxRunner available: build with sing-box xcframework or use macOS")
+#endif
 }
 #endif

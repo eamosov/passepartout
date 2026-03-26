@@ -2,11 +2,11 @@ MARKETING_VERSION = 3.6.10
 CURRENT_PROJECT_VERSION = 3994
 
 // Tweak these based on app and team
-CFG_APP_ID = com.algoritmico.ios.Passepartout
+CFG_APP_ID = com.eamosov.Passepartout
 CFG_APP_STORE_ID = 1433648537
-CFG_CLOUDKIT_ROOT = iCloud.com.algoritmico.Passepartout
-CFG_RAW_GROUP_ID = group.com.algoritmico.Passepartout
-CFG_TEAM_ID = DTDYD63ZX9
+CFG_CLOUDKIT_ROOT = iCloud.com.eamosov.Passepartout
+CFG_RAW_GROUP_ID = group.com.eamosov.Passepartout
+CFG_TEAM_ID = ZZ46P8LWV3
 
 // Metadata
 CFG_COPYRIGHT = Copyright © 2026 Davide De Rosa. All rights reserved.

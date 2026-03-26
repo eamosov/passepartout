@@ -101,9 +101,14 @@ extension AppABI {
 
         // MARK: IAP (StoreKit)
 
+#if DEBUG
+        let isFakeIAP = true
+#else
+        let isFakeIAP = withFakeIAPs
+#endif
         let iapManager = appConfiguration.newIAPManager(
-            inAppHelper: appConfiguration.simulatedAppProductHelper(isFake: withFakeIAPs),
-            receiptReader: appConfiguration.simulatedAppReceiptReader(isFake: withFakeIAPs),
+            inAppHelper: appConfiguration.simulatedAppProductHelper(isFake: isFakeIAP),
+            receiptReader: appConfiguration.simulatedAppReceiptReader(isFake: isFakeIAP),
             betaChecker: betaChecker
         )
 
