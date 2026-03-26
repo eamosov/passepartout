@@ -1,6 +1,6 @@
 [submodule "submodules/partout"]
 	path = submodules/partout
-	url = https://github.com/partout-io/partout
+	url = git@github.com:eamosov/partout.git
 [submodule "submodules/wx"]
 	path = submodules/wx
 	url = https://github.com/wxWidgets/wxWidgets
