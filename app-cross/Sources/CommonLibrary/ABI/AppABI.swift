@@ -77,8 +77,9 @@ public final class AppABI: Sendable {
 #endif
         subscriptions = []
 
-        let supportsIAP = appConfiguration.bundle.distributionTarget.supportsIAP
-        iapManager.isEnabled = supportsIAP && !kvStore.bool(forAppPreference: .skipsPurchases)
+        // IAP disabled — all features unlocked via customUserLevel
+        let supportsIAP = false
+        iapManager.isEnabled = false
 
         encoder = AppABIEncoder(appEncoder: appEncoder)
         iap = AppABIIAP(
@@ -400,13 +401,17 @@ private extension AppABI {
         pspLog(.profiles, .info, "\tRead and observe local profiles...")
         try await profileManager.observeLocal()
 
-        pspLog(.profiles, .info, "\tObserve in-app events...")
-        iapManager.observeObjects(withProducts: true)
+        if iapManager.isEnabled {
+            pspLog(.profiles, .info, "\tObserve in-app events...")
+            iapManager.observeObjects(withProducts: true)
 
-        // Defer loads to not block app launch
-        Task {
-            await iapManager.reloadReceipt()
-            didLoadReceiptDate = Date()
+            // Defer loads to not block app launch
+            Task {
+                await iapManager.reloadReceipt()
+                didLoadReceiptDate = Date()
+            }
+        } else {
+            pspLog(.profiles, .info, "\tSkipping IAP (disabled)")
         }
         Task {
             await reloadExtensions()
@@ -481,7 +486,7 @@ private extension AppABI {
             await reloadExtensions()
 
             // Do not reload the receipt unconditionally
-            if shouldInvalidateReceipt {
+            if iapManager.isEnabled, shouldInvalidateReceipt {
                 await iapManager.reloadReceipt()
                 self.didLoadReceiptDate = Date()
             }

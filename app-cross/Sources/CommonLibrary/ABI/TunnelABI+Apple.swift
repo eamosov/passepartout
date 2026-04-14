@@ -98,31 +98,11 @@ extension TunnelABI {
         )
         let daemon = try SimpleConnectionDaemon(params: params)
 
-        // Create IAPManager for receipt verification
-        let iapManager = appConfiguration.newIAPManager(
-            inAppHelper: appConfiguration.newAppProductHelper(),
-            receiptReader: SharedReceiptReader(
-                reader: StoreKitReceiptReader(),
-            ),
-            betaChecker: appConfiguration.newBetaChecker()
-        )
-        await iapManager.fetchLevelIfNeeded()
-        let skipsPurchases = !appConfiguration.bundle.distributionTarget.supportsIAP || preferences.skipsPurchases
-        let verificationParameters = appConfiguration.constants.tunnel.verificationParameters(isBeta: iapManager.isBeta)
-        // Relax verification strategy based on AppPreference
-        let usesRelaxedVerification = preferences.relaxedVerification
-        // Assemble
-        let iap = TunnelABI.IAP(
-            manager: iapManager,
-            skipsPurchases: skipsPurchases,
-            verificationParameters: verificationParameters,
-            usesRelaxedVerification: usesRelaxedVerification
-        )
-
+        // IAP disabled — no receipt verification needed
         return TunnelABI(
             daemon: daemon,
             environment: environment,
-            iap: iap,
+            iap: nil,
             logFormatter: logFormatter,
             originalProfile: originalProfile
         )
