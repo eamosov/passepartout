@@ -221,10 +221,8 @@ extension ABI.AppBundle {
             $0[$1.rawValue] = bundle.string(for: $1)
         }
 
-        // Fetch user level manually
-        let customUserLevel = bundle.integerIfPresent(for: .userLevel).map {
-            ABI.AppUserLevel(rawValue: $0)
-        } ?? nil
+        // All features unlocked — no IAP
+        let customUserLevel: ABI.AppUserLevel? = .complete
 
         let log = SimpleLogDestination(tag: nil)
 

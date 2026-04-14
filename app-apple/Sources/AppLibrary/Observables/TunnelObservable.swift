@@ -81,6 +81,7 @@ extension TunnelObservable {
             transfers = activeProfiles.compactMapValues {
                 abi.transfer(ofProfileId: $0.id)
             }
+            pspLog(.core, .debug, "TunnelObservable.dataCount: transfers=\(transfers)")
         }
     }
 }

@@ -60,10 +60,17 @@ private struct ConnectionStatusDynamicText: View {
     let withColors: Bool
 
     public var body: some View {
-        ConnectionStatusStaticText(
-            statusDescription: statusDescription,
-            color: withColors ? tunnel.statusColor(ofProfileId: profileId, theme) : .primary
-        )
+        VStack(alignment: .leading, spacing: 2) {
+            ConnectionStatusStaticText(
+                statusDescription: statusDescription,
+                color: withColors ? tunnel.statusColor(ofProfileId: profileId, theme) : .primary
+            )
+            if let dataCount = dataCountDescription {
+                Text(dataCount)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -76,11 +83,7 @@ private extension ConnectionStatusDynamicText {
         let status = tunnel.status(for: profileId)
         switch status {
         case .connected:
-            if let dataCount = tunnel.transfers[profileId] {
-                let down = dataCount.received.descriptionAsDataUnit
-                let up = dataCount.sent.descriptionAsDataUnit
-                return "↓\(down) ↑\(up)"
-            }
+            return status.localizedDescription
         case .disconnected:
             var desc = status.localizedDescription
             if let profile = tunnel.activeProfiles[profileId], profile.onDemand {
@@ -91,6 +94,16 @@ private extension ConnectionStatusDynamicText {
             break
         }
         return status.localizedDescription
+    }
+
+    var dataCountDescription: String? {
+        let status = tunnel.status(for: profileId)
+        guard status == .connected, let dataCount = tunnel.transfers[profileId] else {
+            return nil
+        }
+        let down = dataCount.received.descriptionAsDataUnit
+        let up = dataCount.sent.descriptionAsDataUnit
+        return "↓ \(down)  ↑ \(up)"
     }
 }
 
