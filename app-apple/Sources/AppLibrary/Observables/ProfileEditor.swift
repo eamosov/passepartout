@@ -100,6 +100,15 @@ extension ProfileEditor {
             editableProfile.attributes.isAvailableForTV = newValue
         }
     }
+
+    public var connectionType: ConnectionType? {
+        get {
+            editableProfile.attributes.connectionType
+        }
+        set {
+            editableProfile.attributes.connectionType = newValue
+        }
+    }
 }
 
 extension ProfileEditor {

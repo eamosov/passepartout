@@ -4,6 +4,11 @@
 
 import Partout
 
+public enum ConnectionType: String, CaseIterable, Codable, Sendable {
+    case direct
+    case singBox
+}
+
 extension ProfileType where UserInfoType == JSON {
     public var attributes: ProfileAttributes {
         ProfileAttributes(userInfo: userInfo)
@@ -32,6 +37,8 @@ public struct ProfileAttributes {
         case isAvailableForTV
 
         case preferences
+
+        case connectionType
     }
 
     private(set) var userInfo: JSON
@@ -79,6 +86,20 @@ extension ProfileAttributes {
         set {
             userInfo[Key.isAvailableForTV.rawValue] = newValue.map {
                 .bool($0)
+            }
+        }
+    }
+
+    public var connectionType: ConnectionType? {
+        get {
+            guard let string = userInfo[Key.connectionType.rawValue]?.stringValue else {
+                return nil
+            }
+            return ConnectionType(rawValue: string)
+        }
+        set {
+            userInfo[Key.connectionType.rawValue] = newValue.map {
+                .string($0.rawValue)
             }
         }
     }

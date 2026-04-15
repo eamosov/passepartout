@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0
 
+import CommonLibrary
 import SwiftUI
 
 struct ProfileBehaviorSection: View {
@@ -9,6 +10,7 @@ struct ProfileBehaviorSection: View {
 
     var body: some View {
         Group {
+            connectionTypePicker
             keepAliveToggle
             enforceTunnelToggle
         }
@@ -17,6 +19,52 @@ struct ProfileBehaviorSection: View {
 }
 
 private extension ProfileBehaviorSection {
+    var isSingBoxAvailable: Bool {
+        profileEditor.modules
+            .compactMap { $0 as? OpenVPNModule.Builder }
+            .contains { builder in
+                guard builder.configurationBuilder?.singBoxEnabled == true,
+                      builder.configurationBuilder?.singBoxUUID != nil,
+                      builder.configurationBuilder?.singBoxTLSServerName != nil,
+                      builder.configurationBuilder?.singBoxTLSPublicKey != nil,
+                      builder.configurationBuilder?.singBoxTLSShortId != nil else {
+                    return false
+                }
+                return true
+            }
+    }
+
+    var defaultConnectionType: ConnectionType {
+        isSingBoxAvailable ? .singBox : .direct
+    }
+
+    var effectiveConnectionType: ConnectionType {
+        let stored = profileEditor.connectionType ?? defaultConnectionType
+        if stored == .singBox && !isSingBoxAvailable {
+            return .direct
+        }
+        return stored
+    }
+
+    var connectionTypePicker: some View {
+        Picker("Connection Type", selection: Binding(
+            get: { effectiveConnectionType },
+            set: {
+                if $0 == defaultConnectionType {
+                    profileEditor.connectionType = nil
+                } else {
+                    profileEditor.connectionType = $0
+                }
+            }
+        )) {
+            Text("Direct").tag(ConnectionType.direct)
+            if isSingBoxAvailable {
+                Text("SingBox").tag(ConnectionType.singBox)
+            }
+        }
+        .themeContainerEntry()
+    }
+
     var keepAliveToggle: some View {
         Toggle(Strings.Modules.General.Rows.keepAliveOnSleep, isOn: profileEditor.binding(\.keepsAliveOnSleep))
             .themeContainerEntry(

@@ -24,14 +24,21 @@ struct ProfileCardView: View {
         VStack(alignment: .leading) {
             Spacer(minLength: .zero)
 
-            ThemeNavigatingButton {
-                onTap?(header)
-            } label: {
-                Text(header.name)
-                    .font(.headline)
-                    .themeMultiLine(true)
+            HStack(spacing: 6) {
+                ThemeNavigatingButton {
+                    onTap?(header)
+                } label: {
+                    Text(header.name)
+                        .font(.headline)
+                        .themeMultiLine(true)
+                }
+                .uiAccessibility(.App.profileEdit)
+                if header.effectiveConnectionType == .singBox {
+                    Text("[sb]")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
-            .uiAccessibility(.App.profileEdit)
 
             statusView
                 .font(.subheadline)

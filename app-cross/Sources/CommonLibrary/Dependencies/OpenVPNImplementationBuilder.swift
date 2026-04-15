@@ -43,9 +43,12 @@ private extension OpenVPNImplementationBuilder {
         options.writeTimeout = TimeInterval(parameters.options.linkWriteTimeout) / 1000.0
         options.minDataCountInterval = TimeInterval(parameters.options.minDataCountInterval) / 1000.0
 
-        // Create sing-box runner if configuration has sb_enable
+        // Create sing-box runner based on connection type override or auto-detection
         let singBoxRunner: SingBoxRunner?
-        if module.configuration?.singBoxEnabled == true {
+        let connectionType = parameters.profile.attributes.connectionType
+        if connectionType == .direct {
+            singBoxRunner = nil
+        } else if module.configuration?.singBoxEnabled == true {
             singBoxRunner = newSingBoxRunner()
         } else {
             singBoxRunner = nil

@@ -72,10 +72,17 @@ private extension InstalledProfileView {
     }
 
     func nameView() -> some View {
-        Text(header?.name ?? Strings.Views.App.InstalledProfile.None.name)
-            .font(.title2)
-            .fontWeight(theme.relevantWeight)
-            .themeMultiLine(true)
+        HStack(spacing: 6) {
+            Text(header?.name ?? Strings.Views.App.InstalledProfile.None.name)
+                .font(.title2)
+                .fontWeight(theme.relevantWeight)
+                .themeMultiLine(true)
+            if header?.effectiveConnectionType == .singBox {
+                Text("[sb]")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     var statusView: some View {

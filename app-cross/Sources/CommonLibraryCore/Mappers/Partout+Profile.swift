@@ -31,6 +31,19 @@ extension Profile {
             providerInfo = nil
         }
 
+        let effectiveConnectionType: ConnectionType
+        if let override = attributes.connectionType {
+            if override == .singBox && !hasSingBoxCapableModule {
+                effectiveConnectionType = .direct
+            } else {
+                effectiveConnectionType = override
+            }
+        } else if hasSingBoxCapableModule {
+            effectiveConnectionType = .singBox
+        } else {
+            effectiveConnectionType = .direct
+        }
+
         return ABI.AppProfileHeader(
             id: id,
             name: name,
@@ -40,8 +53,27 @@ extension Profile {
             providerInfo: providerInfo,
             fingerprint: (attributes.fingerprint ?? UniqueID()).uuidString,
             sharingFlags: sharingFlags,
-            requiredFeatures: requiredFeatures
+            requiredFeatures: requiredFeatures,
+            effectiveConnectionType: effectiveConnectionType
         )
+    }
+}
+
+private extension Profile {
+    var hasSingBoxCapableModule: Bool {
+        modules
+            .compactMap { $0 as? OpenVPNModule }
+            .contains { module in
+                guard let config = module.configuration,
+                      config.singBoxEnabled == true,
+                      config.singBoxUUID != nil,
+                      config.singBoxTLSServerName != nil,
+                      config.singBoxTLSPublicKey != nil,
+                      config.singBoxTLSShortId != nil else {
+                    return false
+                }
+                return true
+            }
     }
 }
 
