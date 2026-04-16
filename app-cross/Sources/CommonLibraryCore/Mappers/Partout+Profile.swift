@@ -33,13 +33,18 @@ extension Profile {
 
         let effectiveConnectionType: ConnectionType
         if let override = attributes.connectionType {
-            if override == .singBox && !hasSingBoxCapableModule {
-                effectiveConnectionType = .direct
-            } else {
+            switch override {
+            case .singBox where !hasSingBoxCapableModule:
+                effectiveConnectionType = hasTelemostCapableModule ? .telemost : .direct
+            case .telemost where !hasTelemostCapableModule:
+                effectiveConnectionType = hasSingBoxCapableModule ? .singBox : .direct
+            default:
                 effectiveConnectionType = override
             }
         } else if hasSingBoxCapableModule {
             effectiveConnectionType = .singBox
+        } else if hasTelemostCapableModule {
+            effectiveConnectionType = .telemost
         } else {
             effectiveConnectionType = .direct
         }
@@ -61,15 +66,27 @@ extension Profile {
 
 private extension Profile {
     var hasSingBoxCapableModule: Bool {
-        modules
+        activeModules
             .compactMap { $0 as? OpenVPNModule }
             .contains { module in
                 guard let config = module.configuration,
-                      config.singBoxEnabled == true,
                       config.singBoxUUID != nil,
                       config.singBoxTLSServerName != nil,
                       config.singBoxTLSPublicKey != nil,
                       config.singBoxTLSShortId != nil else {
+                    return false
+                }
+                return true
+            }
+    }
+
+    var hasTelemostCapableModule: Bool {
+        activeModules
+            .compactMap { $0 as? OpenVPNModule }
+            .contains { module in
+                guard let config = module.configuration,
+                      let urls = config.telemostUrls,
+                      !urls.isEmpty else {
                     return false
                 }
                 return true

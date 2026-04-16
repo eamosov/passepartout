@@ -23,8 +23,7 @@ private extension ProfileBehaviorSection {
         profileEditor.modules
             .compactMap { $0 as? OpenVPNModule.Builder }
             .contains { builder in
-                guard builder.configurationBuilder?.singBoxEnabled == true,
-                      builder.configurationBuilder?.singBoxUUID != nil,
+                guard builder.configurationBuilder?.singBoxUUID != nil,
                       builder.configurationBuilder?.singBoxTLSServerName != nil,
                       builder.configurationBuilder?.singBoxTLSPublicKey != nil,
                       builder.configurationBuilder?.singBoxTLSShortId != nil else {
@@ -34,14 +33,34 @@ private extension ProfileBehaviorSection {
             }
     }
 
+    var isTelemostAvailable: Bool {
+        profileEditor.modules
+            .compactMap { $0 as? OpenVPNModule.Builder }
+            .contains { builder in
+                guard let urls = builder.configurationBuilder?.telemostUrls,
+                      !urls.isEmpty else {
+                    return false
+                }
+                return true
+            }
+    }
+
     var defaultConnectionType: ConnectionType {
-        isSingBoxAvailable ? .singBox : .direct
+        if isSingBoxAvailable {
+            return .singBox
+        } else if isTelemostAvailable {
+            return .telemost
+        }
+        return .direct
     }
 
     var effectiveConnectionType: ConnectionType {
         let stored = profileEditor.connectionType ?? defaultConnectionType
         if stored == .singBox && !isSingBoxAvailable {
-            return .direct
+            return isTelemostAvailable ? .telemost : .direct
+        }
+        if stored == .telemost && !isTelemostAvailable {
+            return isSingBoxAvailable ? .singBox : .direct
         }
         return stored
     }
@@ -60,6 +79,9 @@ private extension ProfileBehaviorSection {
             Text("Direct").tag(ConnectionType.direct)
             if isSingBoxAvailable {
                 Text("SingBox").tag(ConnectionType.singBox)
+            }
+            if isTelemostAvailable {
+                Text("Telemost").tag(ConnectionType.telemost)
             }
         }
         .themeContainerEntry()

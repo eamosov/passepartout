@@ -330,6 +330,21 @@ private struct AppABITunnel: AppABITunnelProtocol {
                 forKey: TunnelEnvironmentKeys.OpenVPN.serverConfiguration,
                 ofProfileId: profileId
             )
+        case .connectionSubStatus:
+            tunnelManager.value(
+                forKey: TunnelEnvironmentKeys.connectionSubStatus,
+                ofProfileId: profileId
+            )
+        case .ydtunAlive:
+            tunnelManager.value(
+                forKey: TunnelEnvironmentKeys.ydtunAlive,
+                ofProfileId: profileId
+            )
+        case .ydtunApiPort:
+            tunnelManager.value(
+                forKey: TunnelEnvironmentKeys.ydtunApiPort,
+                ofProfileId: profileId
+            )
         }
     }
 }

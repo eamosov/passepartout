@@ -82,6 +82,12 @@ private extension ConnectionStatusDynamicText {
         }
         let status = tunnel.status(for: profileId)
         switch status {
+        case .connecting, .disconnecting:
+            // Show sub-status if available (e.g. "Telemost: KCP connecting...")
+            if let subStatus = tunnel.connectionSubStatus(for: profileId), !subStatus.isEmpty {
+                return subStatus
+            }
+            return status.localizedDescription
         case .connected:
             return status.localizedDescription
         case .disconnected:
@@ -90,10 +96,7 @@ private extension ConnectionStatusDynamicText {
                 desc += Strings.Views.Ui.ConnectionStatus.onDemandSuffix
             }
             return desc
-        default:
-            break
         }
-        return status.localizedDescription
     }
 
     var dataCountDescription: String? {

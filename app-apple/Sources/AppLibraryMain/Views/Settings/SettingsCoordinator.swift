@@ -147,6 +147,11 @@ extension SettingsCoordinator {
             StatusMonitorView()
                 .navigationTitle("Status Monitor")
 
+#if !os(tvOS)
+        case .ydtunStatus(let apiPort):
+            YdtunStatusView(apiPort: apiPort)
+#endif
+
         case .tunnelLog(let title, let url):
             if let url {
                 DebugLogView(withURL: url) {

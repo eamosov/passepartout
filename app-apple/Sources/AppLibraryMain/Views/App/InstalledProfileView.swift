@@ -77,10 +77,8 @@ private extension InstalledProfileView {
                 .font(.title2)
                 .fontWeight(theme.relevantWeight)
                 .themeMultiLine(true)
-            if header?.effectiveConnectionType == .singBox {
-                Text("[sb]")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            if let header {
+                ConnectionBadgeView(header: header, tunnel: tunnel)
             }
         }
     }

@@ -49,6 +49,9 @@ public protocol AppABIRegistryProtocol: Sendable {
 
 public enum AppABITunnelValueKey: Sendable {
     case openVPNServerConfiguration
+    case connectionSubStatus
+    case ydtunAlive
+    case ydtunApiPort
 }
 
 @BusinessActor

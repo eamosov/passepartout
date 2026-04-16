@@ -28,7 +28,8 @@ struct OpenVPNImplementationBuilder: Sendable {
             connectionBlock: {
                 try crossConnection(with: $0, module: $1)
             },
-            singBoxRunnerBlock: { newSingBoxRunner() }
+            singBoxRunnerBlock: { newSingBoxRunner() },
+            ydtunRunnerBlock: { newYdtunRunner() }
         )
     }
 }
@@ -43,15 +44,26 @@ private extension OpenVPNImplementationBuilder {
         options.writeTimeout = TimeInterval(parameters.options.linkWriteTimeout) / 1000.0
         options.minDataCountInterval = TimeInterval(parameters.options.minDataCountInterval) / 1000.0
 
-        // Create sing-box runner based on connection type override or auto-detection
+        // Create sidecar runner based on connection type override or auto-detection
+        // Mutually exclusive: sing-box XOR ydtun XOR none
         let singBoxRunner: SingBoxRunner?
+        let ydtunRunner: YdtunRunner?
         let connectionType = parameters.profile.attributes.connectionType
+
         if connectionType == .direct {
             singBoxRunner = nil
-        } else if module.configuration?.singBoxEnabled == true {
+            ydtunRunner = nil
+        } else if connectionType == .singBox || (connectionType == nil && module.configuration?.singBoxEnabled == true) {
+            // Explicit .singBox selection or auto-detect via singBoxEnabled
             singBoxRunner = newSingBoxRunner()
+            ydtunRunner = nil
+        } else if connectionType == .telemost || (connectionType == nil && module.configuration?.telemostEnabled == true) {
+            // Explicit .telemost selection or auto-detect via telemostEnabled
+            singBoxRunner = nil
+            ydtunRunner = newYdtunRunner()
         } else {
             singBoxRunner = nil
+            ydtunRunner = nil
         }
 
         return try OpenVPNConnection(
@@ -60,9 +72,23 @@ private extension OpenVPNImplementationBuilder {
             module: module,
             cachesURL: cachesURL,
             singBoxRunner: singBoxRunner,
+            ydtunRunner: ydtunRunner,
             options: options
         )
     }
+}
+
+private func newYdtunRunner() -> YdtunRunner {
+#if canImport(_PartoutYdtun_C)
+    return LibYdtunRunner()
+#elseif os(macOS)
+    if let bundlePath = Bundle.main.path(forResource: "ydtun", ofType: nil) {
+        return ProcessYdtunRunner(binaryPath: bundlePath)
+    }
+    return ProcessYdtunRunner(binaryPath: "/usr/local/bin/ydtun")
+#else
+    fatalError("No YdtunRunner available")
+#endif
 }
 
 private func newSingBoxRunner() -> SingBoxRunner {

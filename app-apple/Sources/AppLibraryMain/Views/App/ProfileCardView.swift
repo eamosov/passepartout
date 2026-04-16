@@ -33,11 +33,7 @@ struct ProfileCardView: View {
                         .themeMultiLine(true)
                 }
                 .uiAccessibility(.App.profileEdit)
-                if header.effectiveConnectionType == .singBox {
-                    Text("[sb]")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                ConnectionBadgeView(header: header, tunnel: tunnel)
             }
 
             statusView

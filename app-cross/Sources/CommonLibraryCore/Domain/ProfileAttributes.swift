@@ -7,6 +7,18 @@ import Partout
 public enum ConnectionType: String, CaseIterable, Codable, Sendable {
     case direct
     case singBox
+    case telemost
+
+    public var badge: String? {
+        switch self {
+        case .direct:
+            return nil
+        case .singBox:
+            return "[sb]"
+        case .telemost:
+            return "[tm]"
+        }
+    }
 }
 
 extension ProfileType where UserInfoType == JSON {
@@ -152,6 +164,9 @@ extension ProfileAttributes: CustomDebugStringConvertible {
             },
             isAvailableForTV.map {
                 "isAvailableForTV: \($0)"
+            },
+            connectionType.map {
+                "connectionType: \($0)"
             },
             "allPreferences: \(allPreferences)"
         ].compactMap { $0 }

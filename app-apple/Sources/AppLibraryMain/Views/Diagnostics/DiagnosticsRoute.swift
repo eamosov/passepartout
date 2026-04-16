@@ -11,5 +11,7 @@ enum DiagnosticsRoute: Hashable {
 
     case statusMonitor
 
+    case ydtunStatus(apiPort: UInt16)
+
     case tunnelLog(title: String, url: URL?)
 }

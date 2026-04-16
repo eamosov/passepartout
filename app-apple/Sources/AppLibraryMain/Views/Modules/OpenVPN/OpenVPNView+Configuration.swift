@@ -37,6 +37,7 @@ extension OpenVPNView {
             }
             keepAliveSection
             singBoxSection
+            telemostSection
             otherSection
         }
     }
@@ -359,6 +360,37 @@ private extension OpenVPNView.ConfigurationView {
         }
     }
 
+    var telemostSection: some View {
+        themeModuleSection(if: telemostRows, header: "Telemost Tunnel") {
+            ThemeRow("Telemost", value: configuration.telemostEnabled == true ? Strings.Global.Nouns.enabled : Strings.Global.Nouns.disabled)
+
+            configuration.telemostUrls
+                .map {
+                    ThemeCopiableText("URLs", value: $0)
+                }
+
+            configuration.telemostTunnelKey
+                .map {
+                    ThemeRow("Tunnel Key", value: String(repeating: "•", count: min($0.count, 16)))
+                }
+
+            configuration.telemostForceTcpRelay
+                .map {
+                    ThemeRow("Force TCP Relay", value: $0 ? Strings.Global.Nouns.enabled : Strings.Global.Nouns.disabled)
+                }
+
+            configuration.telemostLogLevel
+                .map {
+                    ThemeRow("Log Level", value: String($0))
+                }
+
+            configuration.telemostNetGateway
+                .map {
+                    ThemeCopiableText("Net Gateway", value: $0)
+                }
+        }
+    }
+
     var otherSection: some View {
         themeModuleSection(if: otherRows, header: Strings.Global.Nouns.other) {
             configuration.localizedDescription(optionalStyle: .renegotiatesAfter)
@@ -472,6 +504,17 @@ private extension OpenVPNView.ConfigurationView {
             configuration.singBoxTLSShortId,
             configuration.singBoxOverrideAddress,
             configuration.singBoxOverridePort
+        ]
+    }
+
+    var telemostRows: [Any?] {
+        [
+            configuration.telemostEnabled,
+            configuration.telemostUrls,
+            configuration.telemostTunnelKey,
+            configuration.telemostForceTcpRelay,
+            configuration.telemostLogLevel,
+            configuration.telemostNetGateway
         ]
     }
 

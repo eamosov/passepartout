@@ -73,7 +73,16 @@ private extension DiagnosticsView {
     var statusMonitorSection: some View {
         Section {
             NavigationLink("Status Monitor", value: DiagnosticsRoute.statusMonitor)
+            if let apiPort = activeYdtunApiPort {
+                NavigationLink("Ydtun Status", value: DiagnosticsRoute.ydtunStatus(apiPort: apiPort))
+            }
         }
+    }
+
+    var activeYdtunApiPort: UInt16? {
+        tunnel.activeProfiles.keys.compactMap {
+            tunnel.ydtunApiPort(for: $0)
+        }.first
     }
 
     var liveLogSection: some View {
