@@ -26,9 +26,9 @@ EXPORT_PATH="/tmp/Passepartout-AdHoc"
 NEKROVPN_DIR="${SCRIPT_DIR}/../nekrovpn"
 
 # Server settings
-UDID_URL="https://nekro.efreet.ru/udid/devices.json"
-ADMIN_USER="admin"
-ADMIN_PASS="4Njj6w-jGbG4"
+NEKRO_URL="https://nekro.efreet.ru"
+NEKRO_API_TOKEN="2217940d36ad3c737f4cb62edd8bf590ee1b69a1fda25910dd5b4064cd08abef"
+UDID_URL="${NEKRO_URL}/api/admin/devices"
 
 # Load env file if exists
 ENV_FILE="${HOME}/.config/passepartout-build.env"
@@ -50,7 +50,7 @@ err()  { echo -e "${RED}ERROR:${NC} $*" >&2; }
 
 fetch_udids() {
     log "Fetching UDIDs from ${UDID_URL}"
-    UDID_JSON=$(curl -sf -u "${ADMIN_USER}:${ADMIN_PASS}" "${UDID_URL}" 2>/dev/null)
+    UDID_JSON=$(curl -sf -H "Authorization: Bearer ${NEKRO_API_TOKEN}" "${UDID_URL}" 2>/dev/null)
     if [ $? -ne 0 ] || [ -z "${UDID_JSON}" ]; then
         warn "Could not fetch UDIDs from server (is it running?)"
         return 1
@@ -183,7 +183,7 @@ build_ipa() {
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>ad-hoc</string>
+    <string>release-testing</string>
     <key>teamID</key>
     <string>ZZ46P8LWV3</string>
     <key>signingStyle</key>
@@ -192,6 +192,8 @@ build_ipa() {
     <true/>
     <key>compileBitcode</key>
     <false/>
+    <key>signingCertificate</key>
+    <string>Apple Distribution</string>
 </dict>
 </plist>
 EOF
@@ -214,26 +216,44 @@ EOF
     log "IPA built: ${EXPORT_PATH}/Passepartout.ipa (${IPA_SIZE})"
 }
 
-# ─── Step 4: Update nekrovpn downloads ───
+# ─── Step 4: Upload IPA to server ───
 
-update_nekrovpn() {
-    if [ ! -d "${NEKROVPN_DIR}/roles/nekro_site" ]; then
-        warn "nekrovpn not found at ${NEKROVPN_DIR}, skipping download update"
-        return 0
+upload_ipa() {
+    local ipa="${EXPORT_PATH}/Passepartout.ipa"
+    if [ ! -f "${ipa}" ]; then
+        err "IPA not found: ${ipa}"
+        return 1
     fi
 
-    log "Updating nekrovpn downloads"
-    cd "${NEKROVPN_DIR}"
-    bash roles/nekro_site/update-downloads.sh
-    cd "${SCRIPT_DIR}"
+    log "Uploading Passepartout.ipa to ${NEKRO_URL}"
+    local http_code
+    http_code=$(curl -s -o /tmp/upload-response.json -w "%{http_code}" \
+        -X POST \
+        -H "Authorization: Bearer ${NEKRO_API_TOKEN}" \
+        -H "Content-Type: application/octet-stream" \
+        --data-binary "@${ipa}" \
+        "${NEKRO_URL}/api/admin/upload/Passepartout.ipa")
+
+    if [ "${http_code}" != "200" ]; then
+        err "Upload failed (HTTP ${http_code})"
+        cat /tmp/upload-response.json 2>/dev/null
+        return 1
+    fi
+
+    log "Upload OK: $(cat /tmp/upload-response.json)"
 }
 
 # ─── Main ───
 
 BUILD_ONLY=false
-if [ "$1" = "--build-only" ]; then
-    BUILD_ONLY=true
-fi
+UPLOAD=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --build-only) BUILD_ONLY=true ;;
+        --upload)     UPLOAD=true ;;
+    esac
+done
 
 echo ""
 echo "╔══════════════════════════════════════╗"
@@ -246,8 +266,10 @@ if [ "${BUILD_ONLY}" = false ]; then
 fi
 
 build_ipa
-update_nekrovpn
+
+if [ "${UPLOAD}" = true ]; then
+    upload_ipa
+fi
 
 echo ""
 log "Done! IPA: ${EXPORT_PATH}/Passepartout.ipa"
-log "Deploy: cd ${NEKROVPN_DIR} && ansible-playbook site.yml --tags nekro_site --limit relay"
