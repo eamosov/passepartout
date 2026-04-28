@@ -69,14 +69,7 @@ private extension Profile {
         activeModules
             .compactMap { $0 as? OpenVPNModule }
             .contains { module in
-                guard let config = module.configuration,
-                      config.singBoxUUID != nil,
-                      config.singBoxTLSServerName != nil,
-                      config.singBoxTLSPublicKey != nil,
-                      config.singBoxTLSShortId != nil else {
-                    return false
-                }
-                return true
+                module.configuration?.hasUsableSingBoxOutbound ?? false
             }
     }
 
@@ -84,12 +77,7 @@ private extension Profile {
         activeModules
             .compactMap { $0 as? OpenVPNModule }
             .contains { module in
-                guard let config = module.configuration,
-                      let urls = config.telemostUrls,
-                      !urls.isEmpty else {
-                    return false
-                }
-                return true
+                module.configuration?.hasUsableTelemost ?? false
             }
     }
 }

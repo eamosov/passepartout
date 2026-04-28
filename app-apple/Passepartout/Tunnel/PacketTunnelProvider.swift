@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
 import AppResources
-import CommonLibrary
+import AppTunnelLibrary
+import CommonLibraryCore
+import CommonTunnelLibrary
 @preconcurrency import NetworkExtension
 
 final class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {

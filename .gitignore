@@ -11,6 +11,7 @@ dist/
 tmp/
 /l10n/
 **/*secret*
+selfIdentity.plist
 *.a
 *.so
 *.lib

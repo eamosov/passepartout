@@ -15,7 +15,7 @@ extension ABI.AppConfiguration {
         ]
         var allImplementations: [ModuleImplementation] = []
         var providerResolvers: [ProviderModuleResolver] = []
-#if USE_CMAKE || canImport(PartoutOpenVPNConnection)
+#if USE_CMAKE
         allImplementations.append(
             OpenVPNImplementationBuilder(
                 distributionTarget: bundle.distributionTarget,
@@ -26,8 +26,11 @@ extension ABI.AppConfiguration {
 #if !USE_CMAKE
         providerResolvers.append(OpenVPNProviderResolver())
 #endif
+#else
+        allImplementations.append(appOpenVPNImplementation())
+        providerResolvers.append(OpenVPNProviderResolver())
 #endif
-#if USE_CMAKE || canImport(PartoutWireGuardConnection)
+#if USE_CMAKE
         allImplementations.append(
             WireGuardImplementationBuilder(
                 configBlock: configBlock
@@ -36,6 +39,9 @@ extension ABI.AppConfiguration {
 #if !USE_CMAKE
         providerResolvers.append(WireGuardProviderResolver(deviceId: deviceId))
 #endif
+#else
+        allImplementations.append(appWireGuardImplementation())
+        providerResolvers.append(WireGuardProviderResolver(deviceId: deviceId))
 #endif
         let mappedResolvers = providerResolvers
             .reduce(into: [:]) {
@@ -57,6 +63,32 @@ extension ABI.AppConfiguration {
         )
         registry.assertMissingImplementations()
         return registry
+    }
+
+    private func appOpenVPNImplementation() -> OpenVPNModule.Implementation {
+        OpenVPNModule.Implementation(
+            importerBlock: {
+                StandardOpenVPNParser()
+            },
+            connectionBlock: { _, _ in
+                throw PartoutError(.requiredImplementation)
+            }
+        )
+    }
+
+    private func appWireGuardImplementation() -> WireGuardModule.Implementation {
+        WireGuardModule.Implementation(
+            keyGenerator: StandardWireGuardKeyGenerator(),
+            importerBlock: {
+                StandardWireGuardParser()
+            },
+            validatorBlock: {
+                StandardWireGuardParser()
+            },
+            connectionBlock: { _, _ in
+                throw PartoutError(.requiredImplementation)
+            }
+        )
     }
 }
 

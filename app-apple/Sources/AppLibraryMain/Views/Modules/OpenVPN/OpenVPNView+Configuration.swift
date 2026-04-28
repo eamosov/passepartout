@@ -316,7 +316,7 @@ private extension OpenVPNView.ConfigurationView {
     }
 
     var singBoxSection: some View {
-        themeModuleSection(if: singBoxRows, header: "VLESS / Reality") {
+        themeModuleSection(if: singBoxRows, header: "SingBox") {
             ThemeRow("SingBox", value: configuration.singBoxEnabled == true ? Strings.Global.Nouns.enabled : Strings.Global.Nouns.disabled)
 
             configuration.singBoxUUID
@@ -357,6 +357,36 @@ private extension OpenVPNView.ConfigurationView {
                 .map {
                     ThemeRow("Override Port", value: String($0))
                 }
+
+            configuration.singBoxWsServerName
+                .map {
+                    ThemeCopiableText("WS Server Name", value: $0)
+                }
+
+            configuration.singBoxWsPath
+                .map {
+                    ThemeCopiableText("WS Path", value: $0)
+                }
+
+            configuration.singBoxHy2Password
+                .map {
+                    ThemeRow("Hy2 Password", value: String(repeating: "•", count: min($0.count, 16)))
+                }
+
+            configuration.singBoxHy2ServerName
+                .map {
+                    ThemeCopiableText("Hy2 Server Name", value: $0)
+                }
+
+            configuration.singBoxHy2ObfsType
+                .map {
+                    ThemeRow("Hy2 Obfs Type", value: $0)
+                }
+
+            configuration.singBoxHy2ObfsPassword
+                .map {
+                    ThemeRow("Hy2 Obfs Password", value: String(repeating: "•", count: min($0.count, 16)))
+                }
         }
     }
 
@@ -364,14 +394,19 @@ private extension OpenVPNView.ConfigurationView {
         themeModuleSection(if: telemostRows, header: "Telemost Tunnel") {
             ThemeRow("Telemost", value: configuration.telemostEnabled == true ? Strings.Global.Nouns.enabled : Strings.Global.Nouns.disabled)
 
-            configuration.telemostUrls
+            configuration.telemostCcUrl
                 .map {
-                    ThemeCopiableText("URLs", value: $0)
+                    ThemeCopiableText("CC URL", value: $0)
                 }
 
             configuration.telemostTunnelKey
                 .map {
                     ThemeRow("Tunnel Key", value: String(repeating: "•", count: min($0.count, 16)))
+                }
+
+            configuration.telemostDisplayName
+                .map {
+                    ThemeCopiableText("Display Name", value: $0)
                 }
 
             configuration.telemostForceTcpRelay
@@ -384,9 +419,24 @@ private extension OpenVPNView.ConfigurationView {
                     ThemeRow("Log Level", value: String($0))
                 }
 
-            configuration.telemostNetGateway
+            configuration.telemostTunnelId
                 .map {
-                    ThemeCopiableText("Net Gateway", value: $0)
+                    ThemeCopiableText("Tunnel ID", value: $0)
+                }
+
+            configuration.telemostMaxBw
+                .map {
+                    ThemeRow("Max BW", value: String($0))
+                }
+
+            configuration.telemostMaxFrameBudget
+                .map {
+                    ThemeRow("Max Frame Budget", value: String($0))
+                }
+
+            configuration.telemostMaxFps
+                .map {
+                    ThemeRow("Max FPS", value: String($0))
                 }
         }
     }
@@ -503,18 +553,28 @@ private extension OpenVPNView.ConfigurationView {
             configuration.singBoxTLSPublicKey,
             configuration.singBoxTLSShortId,
             configuration.singBoxOverrideAddress,
-            configuration.singBoxOverridePort
+            configuration.singBoxOverridePort,
+            configuration.singBoxWsServerName,
+            configuration.singBoxWsPath,
+            configuration.singBoxHy2Password,
+            configuration.singBoxHy2ServerName,
+            configuration.singBoxHy2ObfsType,
+            configuration.singBoxHy2ObfsPassword
         ]
     }
 
     var telemostRows: [Any?] {
         [
             configuration.telemostEnabled,
-            configuration.telemostUrls,
+            configuration.telemostCcUrl,
             configuration.telemostTunnelKey,
+            configuration.telemostDisplayName,
             configuration.telemostForceTcpRelay,
             configuration.telemostLogLevel,
-            configuration.telemostNetGateway
+            configuration.telemostTunnelId,
+            configuration.telemostMaxBw,
+            configuration.telemostMaxFrameBudget,
+            configuration.telemostMaxFps
         ]
     }
 

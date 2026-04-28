@@ -30,7 +30,7 @@ let package = Package(
         ),
         .library(
             name: "TunnelLibrary",
-            targets: ["AppResources"]
+            targets: ["AppTunnelLibrary"]
         )
     ],
     dependencies: [
@@ -78,6 +78,14 @@ let package = Package(
             resources: [
                 .process("Resources")
             ]
+        ),
+        .target(
+            name: "AppTunnelLibrary",
+            dependencies: [
+                "AppResources",
+                .product(name: "CommonTunnelLibrary", package: "app-cross")
+            ],
+            path: "Sources/Empty/AppTunnelLibrary"
         ),
         .target(
             name: "AppStrings",

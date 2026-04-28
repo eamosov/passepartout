@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #if PSP_ABI
+import CommonLibrary
 import Partout
 
 extension TunnelABI {
@@ -31,7 +32,7 @@ extension TunnelABI {
 
         // Initialize objects from global configuration
         // TODO: #218, this directory must be per-profile
-        let registry = appConfiguration.newTunnelRegistry(
+        let registry = appConfiguration.newConnectionTunnelRegistry(
             preferences: preferences,
             cachesURL: cachesURL
         )

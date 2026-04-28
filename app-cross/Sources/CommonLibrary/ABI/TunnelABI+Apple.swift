@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #if canImport(CommonLibraryApple)
+import CommonLibrary
 import NetworkExtension
 import Partout
 
@@ -18,7 +19,7 @@ extension TunnelABI {
         let logFormatter = appConfiguration.newLogFormatter()
 
         // Create global registry
-        let registry = appConfiguration.newTunnelRegistry(
+        let registry = appConfiguration.newConnectionTunnelRegistry(
             preferences: preferences,
             cachesURL: cachesURL
         )

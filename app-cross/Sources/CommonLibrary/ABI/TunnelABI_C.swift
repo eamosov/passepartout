@@ -4,6 +4,7 @@
 
 #if PSP_ABI
 import CommonLibrary_C
+import CommonLibrary
 import Partout
 
 nonisolated(unsafe)

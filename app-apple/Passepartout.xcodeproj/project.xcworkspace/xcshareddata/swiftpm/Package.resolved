@@ -1,5 +1,5 @@
 {
-  "originHash" : "9b1e2e514044fca3f639050fe37c818259339fd74db32122803ffeddd7d25197",
+  "originHash" : "db7a566434225d9039a0fe41a9cab84c09d9f693ab0a01c3f8d35cae6c392496",
   "pins" : [
     {
       "identity" : "openssl-apple",
@@ -44,15 +44,6 @@
       "state" : {
         "revision" : "395a77f0aa927f0ff73941d7ac35f2b46d47c9db",
         "version" : "1.6.3"
-      }
-    },
-    {
-      "identity" : "wg-go-apple",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/partout-io/wg-go-apple",
-      "state" : {
-        "revision" : "0cae1d186f2e9e7f80a260a060b098b9aa734858",
-        "version" : "0.0.2025063103"
       }
     }
   ],

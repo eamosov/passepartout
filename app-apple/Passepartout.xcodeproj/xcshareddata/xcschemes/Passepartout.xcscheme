@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Build sing-box"
-               scriptText = "export SRCROOT=&quot;${PROJECT_DIR}/..&quot;&#10;export SING_BOX_OUTPUT_DIR=&quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build-sing-box.sh&quot;&#10;"
+               scriptText = "export SRCROOT=&quot;${PROJECT_DIR}/..&quot;&#10;export SING_BOX_OUTPUT_DIR=&quot;${SING_BOX_OUTPUT_DIR:-${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build}&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build-sing-box.sh&quot;&#10;"
                shellToInvoke = "/bin/bash">
                <EnvironmentBuildable>
                   <BuildableReference

@@ -76,11 +76,12 @@ private struct ConnectionStatusDynamicText: View {
 
 private extension ConnectionStatusDynamicText {
     var statusDescription: String {
-        if let lastError = tunnel.lastError(for: profileId),
+        let status = tunnel.status(for: profileId)
+        if status == .disconnected,
+           let lastError = tunnel.lastError(for: profileId),
            case .partout(let partoutError) = lastError {
             return partoutError.code.localizedDescription(style: .tunnel)
         }
-        let status = tunnel.status(for: profileId)
         switch status {
         case .connecting, .disconnecting:
             // Show sub-status if available (e.g. "Telemost: KCP connecting...")

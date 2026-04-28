@@ -23,13 +23,19 @@ private extension ProfileBehaviorSection {
         profileEditor.modules
             .compactMap { $0 as? OpenVPNModule.Builder }
             .contains { builder in
-                guard builder.configurationBuilder?.singBoxUUID != nil,
-                      builder.configurationBuilder?.singBoxTLSServerName != nil,
-                      builder.configurationBuilder?.singBoxTLSPublicKey != nil,
-                      builder.configurationBuilder?.singBoxTLSShortId != nil else {
+                guard let cfg = builder.configurationBuilder,
+                      cfg.singBoxOverrideAddress != nil else {
                     return false
                 }
-                return true
+                let hasReality = cfg.singBoxUUID != nil
+                    && cfg.singBoxTLSServerName != nil
+                    && cfg.singBoxTLSPublicKey != nil
+                    && cfg.singBoxTLSShortId != nil
+                let hasWS = cfg.singBoxUUID != nil && cfg.singBoxWsServerName != nil
+                let hasValidHy2Obfs = (cfg.singBoxHy2ObfsType == nil && cfg.singBoxHy2ObfsPassword == nil)
+                    || (cfg.singBoxHy2ObfsType != nil && cfg.singBoxHy2ObfsPassword != nil)
+                let hasHy2 = cfg.singBoxHy2Password != nil && cfg.singBoxHy2ServerName != nil && hasValidHy2Obfs
+                return hasReality || hasWS || hasHy2
             }
     }
 
@@ -37,8 +43,9 @@ private extension ProfileBehaviorSection {
         profileEditor.modules
             .compactMap { $0 as? OpenVPNModule.Builder }
             .contains { builder in
-                guard let urls = builder.configurationBuilder?.telemostUrls,
-                      !urls.isEmpty else {
+                guard let cfg = builder.configurationBuilder,
+                      let url = cfg.telemostCcUrl,
+                      !url.isEmpty else {
                     return false
                 }
                 return true

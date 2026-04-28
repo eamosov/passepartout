@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0
 
+import CommonLibrary
+
 import CommonLibrary_C
 import Partout
 

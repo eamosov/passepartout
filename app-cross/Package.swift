@@ -15,6 +15,14 @@ let package = Package(
         .library(
             name: "CommonLibrary",
             targets: ["CommonLibrary"]
+        ),
+        .library(
+            name: "CommonTunnelLibrary",
+            targets: ["CommonTunnelLibrary"]
+        ),
+        .library(
+            name: "CommonLibraryCore",
+            targets: ["CommonLibraryCore"]
         )
     ],
     dependencies: [
@@ -61,6 +69,35 @@ package.targets.append(contentsOf: [
         dependencies: [
             "CommonLibraryCore",
             .target(name: "CommonLibraryApple", condition: .when(platforms: [.iOS, .macOS, .tvOS]))
+        ],
+        exclude: [
+            "ABI/TunnelABI.swift",
+            "ABI/TunnelABI+Apple.swift",
+            "ABI/TunnelABI+Cross.swift",
+            "ABI/TunnelABI_C.swift",
+            "ABI/TunnelABIProtocol.swift",
+            "Dependencies/AppConfiguration+ConnectionRegistry.swift",
+            "Dependencies/OpenVPNImplementationBuilder.swift",
+            "Dependencies/WireGuardImplementationBuilder.swift"
+        ],
+        swiftSettings: swiftSettings
+    ),
+    .target(
+        name: "CommonTunnelLibrary",
+        dependencies: [
+            "CommonLibrary",
+            "CommonLibraryCore",
+            .target(name: "CommonLibraryApple", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
+            .product(name: "PartoutOpenVPNConnection", package: "partout")
+        ],
+        path: "Sources/CommonLibrary",
+        sources: [
+            "ABI/TunnelABI.swift",
+            "ABI/TunnelABI+Apple.swift",
+            "ABI/TunnelABIProtocol.swift",
+            "Dependencies/AppConfiguration+ConnectionRegistry.swift",
+            "Dependencies/OpenVPNImplementationBuilder.swift",
+            "Dependencies/WireGuardImplementationBuilder.swift"
         ],
         swiftSettings: swiftSettings
     ),

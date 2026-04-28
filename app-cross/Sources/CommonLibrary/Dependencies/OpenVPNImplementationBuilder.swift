@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
 #if USE_CMAKE || canImport(PartoutOpenVPNConnection)
+import CommonLibraryCore
 import Partout
+import PartoutOpenVPNConnection
 
 struct OpenVPNImplementationBuilder: Sendable {
     private let distributionTarget: ABI.DistributionTarget
@@ -50,15 +52,16 @@ private extension OpenVPNImplementationBuilder {
         let ydtunRunner: YdtunRunner?
         let connectionType = parameters.profile.attributes.connectionType
 
+        let hasSingBoxConfig = module.configuration?.hasUsableSingBoxOutbound == true
+        let hasTelemostConfig = module.configuration?.hasUsableTelemost == true
+
         if connectionType == .direct {
             singBoxRunner = nil
             ydtunRunner = nil
-        } else if connectionType == .singBox || (connectionType == nil && module.configuration?.singBoxEnabled == true) {
-            // Explicit .singBox selection or auto-detect via singBoxEnabled
+        } else if (connectionType == .singBox || connectionType == nil) && hasSingBoxConfig {
             singBoxRunner = newSingBoxRunner()
             ydtunRunner = nil
-        } else if connectionType == .telemost || (connectionType == nil && module.configuration?.telemostEnabled == true) {
-            // Explicit .telemost selection or auto-detect via telemostEnabled
+        } else if (connectionType == .telemost || connectionType == nil) && hasTelemostConfig {
             singBoxRunner = nil
             ydtunRunner = newYdtunRunner()
         } else {

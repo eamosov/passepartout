@@ -364,6 +364,8 @@ PYTHON
 
 build_ipa() {
     local auth_args=()
+    local sing_box_output="${SCRIPT_DIR}/submodules/partout/vendors/sing-box/build"
+    local ydtun_output="${SCRIPT_DIR}/submodules/partout/vendors/ydtun/build"
     if [ -n "${ASC_KEY_ID}" ] && [ -n "${ASC_ISSUER_ID}" ] && [ -f "${ASC_KEY_FILE}" ]; then
         auth_args=(
             -authenticationKeyID "${ASC_KEY_ID}"
@@ -372,7 +374,21 @@ build_ipa() {
         )
     fi
 
+    log "Building sing-box static library"
+    PLATFORM_NAME=iphoneos \
+    ARCHS=arm64 \
+    SING_BOX_OUTPUT_DIR="${sing_box_output}" \
+        "${SCRIPT_DIR}/submodules/partout/vendors/sing-box/build-sing-box.sh"
+
+    log "Building ydtun static library"
+    PLATFORM_NAME=iphoneos \
+    ARCHS=arm64 \
+    YDTUN_OUTPUT_DIR="${ydtun_output}" \
+        "${SCRIPT_DIR}/submodules/partout/vendors/ydtun/build-ydtun.sh"
+
     log "Building release archive"
+    SING_BOX_OUTPUT_DIR="${sing_box_output}" \
+    YDTUN_OUTPUT_DIR="${ydtun_output}" \
     xcodebuild \
         -project "${PROJECT}" \
         -scheme "${SCHEME}" \

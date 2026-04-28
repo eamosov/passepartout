@@ -19,19 +19,40 @@ extension Registry {
             name = url.lastPathComponent
         }
 
-        // Try to decode a full Partout profile first
-        do {
+        // Try to decode a full Partout profile first. Avoid feeding raw module
+        // formats (notably .ovpn with PEM/base64 blocks) into legacy profile
+        // decoding before the module importer gets a chance to handle them.
+        if contents.mayBeEncodedProfile {
+            do {
 #if !PSP_CROSS
-            return try fallbackProfile(fromString: contents)
+                return try fallbackProfile(fromString: contents)
 #else
-            return try profile(fromJSON: contents)
+                return try profile(fromJSON: contents)
 #endif
-        } catch {
-            pspLog(.core, .debug, "Unable to decode profile for import: \(error)")
+            } catch {
+                pspLog(.core, .debug, "Unable to decode profile for import: \(error)")
+            }
         }
 
         // Fall back to parsing a single module
         let importedModule = try module(fromContents: contents, object: passphrase)
         return try Profile(withName: name, singleModule: importedModule)
+    }
+}
+
+private extension String {
+    var mayBeEncodedProfile: Bool {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return false
+        }
+        if trimmed.hasPrefix("{") || trimmed.hasPrefix("[") {
+            return true
+        }
+#if !PSP_CROSS
+        return trimmed.rangeOfCharacter(from: CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").inverted) == nil
+#else
+        return false
+#endif
     }
 }

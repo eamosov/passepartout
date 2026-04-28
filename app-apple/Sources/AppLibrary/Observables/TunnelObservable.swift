@@ -35,8 +35,10 @@ extension TunnelObservable {
 
     public func connect(to profile: Profile, force: Bool = false) async throws {
         // Optimistic update: immediately show .connecting so toggle flips instantly
-        // Only if profile is not already active (avoid downgrading .connected → .connecting)
-        if activeProfiles[profile.id] == nil {
+        // Only if profile is not already active (avoid downgrading .connected → .connecting).
+        // A failed/last-used profile remains in the list as .disconnected; retrying must
+        // still flip the UI back to .connecting immediately.
+        if activeProfiles[profile.id]?.status == nil || activeProfiles[profile.id]?.status == .disconnected {
             activeProfiles[profile.id] = ABI.AppTunnelInfo(
                 id: profile.id,
                 status: .connecting,
@@ -60,6 +62,7 @@ extension TunnelObservable {
 
     public func disconnect(from profileId: Profile.ID) async throws {
         // Immediately clear UI state
+        activeProfiles.removeValue(forKey: profileId)
         subStatuses.removeValue(forKey: profileId)
         ydtunAliveStates.removeValue(forKey: profileId)
         ydtunApiPorts.removeValue(forKey: profileId)
