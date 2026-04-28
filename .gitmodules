@@ -7,6 +7,3 @@
 [submodule "submodules/sing-box"]
 	path = submodules/sing-box
 	url = https://github.com/sagernet/sing-box
-[submodule "submodules/ydtun"]
-	path = submodules/ydtun
-	url = git@github.com:eamosov/ydtun.git

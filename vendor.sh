@@ -11,13 +11,13 @@
 #
 # When it is called:
 #   Run manually when intentionally bumping a vendored dependency revision.
-#   By default it updates submodules/ydtun.
+#   By default it updates submodules/sing-box.
 #
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-module="ydtun"
+module="sing-box"
 module_set=0
 branch=""
 remote="origin"
@@ -28,13 +28,13 @@ usage() {
 Usage: ./vendor.sh [module] [--branch <branch>] [--remote <remote>] [--no-stage]
 
 Updates a vendored submodule with a fast-forward merge and stages the parent
-repository gitlink. If no module is provided, updates ydtun.
+repository gitlink. If no module is provided, updates sing-box.
 
 Examples:
   ./vendor.sh
-  ./vendor.sh ydtun
+  ./vendor.sh sing-box
   ./vendor.sh sing-box --branch dev-next
-  ./vendor.sh submodules/ydtun --no-stage
+  ./vendor.sh submodules/sing-box --no-stage
 
 Options:
   --branch <branch>  Branch to update. Defaults to the current submodule branch.
