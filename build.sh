@@ -36,6 +36,8 @@ if [ -f "${ENV_FILE}" ]; then
     source "${ENV_FILE}"
 fi
 
+NEKROVPN_PATH="${NEKROVPN_PATH:-${NEKROVPN_DIR}}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -365,7 +367,7 @@ PYTHON
 build_ipa() {
     local auth_args=()
     local sing_box_output="${SCRIPT_DIR}/submodules/partout/vendors/sing-box/build"
-    local ydtun_output="${SCRIPT_DIR}/submodules/partout/vendors/ydtun/build"
+    local ydtun_output="${SCRIPT_DIR}/submodules/partout/.build/ydtun"
     if [ -n "${ASC_KEY_ID}" ] && [ -n "${ASC_ISSUER_ID}" ] && [ -f "${ASC_KEY_FILE}" ]; then
         auth_args=(
             -authenticationKeyID "${ASC_KEY_ID}"
@@ -383,11 +385,13 @@ build_ipa() {
     log "Building ydtun static library"
     PLATFORM_NAME=iphoneos \
     ARCHS=arm64 \
+    NEKROVPN_PATH="${NEKROVPN_PATH}" \
     YDTUN_OUTPUT_DIR="${ydtun_output}" \
-        "${SCRIPT_DIR}/submodules/partout/vendors/ydtun/build-ydtun.sh"
+        "${SCRIPT_DIR}/submodules/partout/scripts/build-ydtun.sh"
 
     log "Building release archive"
     SING_BOX_OUTPUT_DIR="${sing_box_output}" \
+    NEKROVPN_PATH="${NEKROVPN_PATH}" \
     YDTUN_OUTPUT_DIR="${ydtun_output}" \
     xcodebuild \
         -project "${PROJECT}" \

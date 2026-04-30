@@ -9,8 +9,8 @@
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
-               title = "Build sing-box"
-               scriptText = "export SRCROOT=&quot;${PROJECT_DIR}/..&quot;&#10;export SING_BOX_OUTPUT_DIR=&quot;${SING_BOX_OUTPUT_DIR:-${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build}&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build-sing-box.sh&quot;&#10;"
+               title = "Build sidecars"
+               scriptText = "export SRCROOT=&quot;${PROJECT_DIR}/..&quot;&#10;export NEKROVPN_PATH=&quot;${NEKROVPN_PATH:-${PROJECT_DIR}/../../nekrovpn}&quot;&#10;export SING_BOX_OUTPUT_DIR=&quot;${SING_BOX_OUTPUT_DIR:-${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build}&quot;&#10;export YDTUN_OUTPUT_DIR=&quot;${YDTUN_OUTPUT_DIR:-${PROJECT_DIR}/../submodules/partout/.build/ydtun}&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/vendors/sing-box/build-sing-box.sh&quot;&#10;bash &quot;${PROJECT_DIR}/../submodules/partout/scripts/build-ydtun.sh&quot;&#10;"
                shellToInvoke = "/bin/bash">
                <EnvironmentBuildable>
                   <BuildableReference
