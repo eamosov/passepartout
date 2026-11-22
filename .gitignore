@@ -20,3 +20,4 @@ selfIdentity.plist
 .cmake*
 .claude
 bin
+/.agent-tests/

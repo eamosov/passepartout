@@ -52,8 +52,7 @@ err()  { echo -e "${RED}ERROR:${NC} $*" >&2; }
 
 fetch_udids() {
     log "Fetching UDIDs from ${UDID_URL}"
-    UDID_JSON=$(curl -sf -H "Authorization: Bearer ${NEKRO_API_TOKEN}" "${UDID_URL}" 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "${UDID_JSON}" ]; then
+    if ! UDID_JSON=$(curl -sf -H "Authorization: Bearer ${NEKRO_API_TOKEN}" "${UDID_URL}" 2>/dev/null) || [ -z "${UDID_JSON}" ]; then
         warn "Could not fetch UDIDs from server (is it running?)"
         return 1
     fi
@@ -94,7 +93,7 @@ register_devices() {
 
     log "Registering devices via App Store Connect API"
     UDID_JSON_EXPORT="${UDID_JSON}" python3 - "${ASC_KEY_ID}" "${ASC_ISSUER_ID}" "${ASC_KEY_FILE}" << 'PYTHON'
-import sys, os, time, json, base64, urllib.request
+import sys, os, time, json, base64, urllib.request, urllib.error
 from pathlib import Path
 
 key_id, issuer_id, key_file = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -127,10 +126,18 @@ def api_request(method, path, body=None):
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         err_body = e.read().decode()
-        if e.code == 409:  # Already exists
+        if e.code == 409 and method == "POST" and path == "devices":  # Already exists
             return {"conflict": True}
-        print(f"  API error {e.code}: {err_body}", file=sys.stderr)
-        return None
+        print(f"  API error {e.code} on {method} {path}: {err_body}", file=sys.stderr)
+        try:
+            errors = json.loads(err_body).get("errors", [])
+        except (ValueError, AttributeError):
+            errors = []
+        if any(error.get("code") == "FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED" for error in errors):
+            print("  The Apple Developer Account Holder must accept the required agreements at "
+                  "https://developer.apple.com/account and https://appstoreconnect.apple.com/business, "
+                  "then rerun this command.", file=sys.stderr)
+        sys.exit(1)
 
 # Fetch registered devices
 resp = api_request("GET", "devices?filter[platform]=IOS&limit=200")
@@ -213,7 +220,15 @@ def api_request(method, path, body=None):
     except urllib.error.HTTPError as e:
         err_body = e.read().decode()
         print(f"  API error {e.code} on {method} {path}: {err_body}", file=sys.stderr)
-        return None
+        try:
+            errors = json.loads(err_body).get("errors", [])
+        except (ValueError, AttributeError):
+            errors = []
+        if any(error.get("code") == "FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED" for error in errors):
+            print("  The Apple Developer Account Holder must accept the required agreements at "
+                  "https://developer.apple.com/account and https://appstoreconnect.apple.com/business, "
+                  "then rerun this command.", file=sys.stderr)
+        sys.exit(1)
 
 server_udids = set(server_devices.keys())
 
@@ -514,7 +529,9 @@ echo ""
 
 if [ "${BUILD_ONLY}" = false ]; then
     rm -f /tmp/adhoc_profiles.json
-    fetch_udids && register_devices && ensure_adhoc_profiles
+    fetch_udids
+    register_devices
+    ensure_adhoc_profiles
 fi
 
 build_ipa
